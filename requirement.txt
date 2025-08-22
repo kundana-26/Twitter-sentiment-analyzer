@@ -1,0 +1,5 @@
+pandas
+Flask
+python-dotenv
+tweepy
+nltk

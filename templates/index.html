@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+    <header>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <script src="https://cdn.anychart.com/releases/8.0.1/js/anychart-core.min.js"></script>
+        <script src="https://cdn.anychart.com/releases/8.0.1/js/anychart-pie.min.js"></script>
+    </header>
+    <body>
+        <form action="/searchTopic" method="POST">
+                <div class="searchContainer">
+                    <div class="tittleDiv">
+                        <label class="searchTitle" for = "Name">SEARCH FOR TWEETS</label>  
+                    </div>
+                    <div class="searchDiv">
+                        <input class="searchInput" type="text" id="name" name="name" placeholder="Search">
+                        <input class="topicSubmit" name="name" type="submit" value="Search">
+                    </div> 
+                </div>
+                {% if summary %}
+                    <div class="summaryContent">
+                        <h3 class="summaryTitle">SUMMARY</h3>
+                        <div class="summaryDivid">
+                            <div class="summaryDiv1">
+                                <div class="summaryBoxes">
+                                    <div class="summaryQuery">
+                                        <p class="summaryDetailsTitle">QUERY</p>
+                                        <h1 class="summaryDetailsContent">{{ summary.query }}</h1>
+                                    </div>
+                                    <div class="summaryQuery">
+                                        <p class="summaryDetailsTitle">TOTAL</p>
+                                        <h1 class="summaryDetailsContent">{{summary.total_tweets}}</h1>
+                                    </div>
+                                </div>
+                                <div class="summaryDesc">
+                                    <p class="summaryDetailsTitle">DESCRIPTION</p>
+                                    <div class="summaryDescText">
+                                        <p class="summerText"> After removal: {{ summary.clear_tweets }} </p>
+                                        <p class="summerText"> Removed tweets: {{ summary.removed_list }}  </p>   
+                                        <p class="summerText"> Sentiment input : {{ summary.sentiment_input }}</p>
+                                    </div>
+
+                                        <!--
+                                    <p> Positive tweets: {{ summary.positive }} |  
+                                        Neutral tweets:  {{summary.neutral}} | 
+                                        Negative tweets: {{ summary.negative }}</p>
+                                        -->
+                                </div>
+
+                                <div style="display: none;">
+                                    <span id="positive">{{ summary.positive }}</span>
+                                    <span id="neutral">{{summary.neutral}}</span>
+                                    <span id="negative">{{ summary.negative }}</span>
+                                </div>
+                                
+                            </div>
+                            <div class="summaryDiv2">
+                                <div id="container" class="pieBar"></div>
+                                <script>
+                                    anychart.onDocumentReady(
+                                        function() {
+                                        var positive = document.getElementById('positive').innerText
+                                        var neutral = document.getElementById('neutral').innerText
+                                        var negative = document.getElementById('negative').innerText
+                                        // set the data
+                                        var data = [
+                                            {x: "POSITIVE", value: positive, fill: '#40ca57'},
+                                            {x: "NEUTRAL", value: neutral, fill: '#f1b021'},
+                                            {x: "NEGATIVE", value: negative, fill: '#e74d48'}
+                                        ];
+                                        var chart = anychart.pie();
+                                        chart.data(data);
+                                        chart.container('container');
+                                        chart.background().fill("none")
+                                        chart.draw();
+                                      
+                                      });
+                                </script>
+
+                                <!--
+                                <div class="pieDetails">
+                                    <p class="pieBarPrecent" style="color:#343a35;" >Input tweets: {{ summary.sentiment_input }}</p>
+                                    <p class="pieBarPrecent" style="color:#32a852; --pos: {{summary.positive_percent}};">POSITIVE: {{ summary.positive_percent }}%</p>
+                                    <p class="pieBarPrecent" style="color:#f1b021; --neu: {{summary.neutral_percent}};">NEUTRAL: {{ summary.neutral_percent }}%</p>
+                                    <p class="pieBarPrecent" style="color:#e74d48; --neg: {{summary.negative_percent}};">NEGATIVE: {{ summary.negative_percent }}%</p>
+                                </div>
+                                -->
+                            </div>
+                        </div>
+
+
+                    </div>
+                {% endif %}
+                {% if error %}
+                    <h2>{{error}}</h2>
+                {% endif %}
+                {% if  positive %}
+                <div class="tweetContainer">
+                    <div class="categoryDiv categoryDiv__positive">
+                            <h3 class="categoryTitle categoryTitle__positive">Positive</h3>
+                        {% if positive %}
+                            {% for item in positive %}
+                                <div class="tweetDiv">
+                                    <img class="profileImg" src="{{item.user.profile_image_url}}" />
+                                    <div class="nameDiv">
+                                        <h3 class="profileName">{{ item.user.name }}</h3>
+                                        <p class="profileHandle">@{{ item.user.screen_name}}</p>
+                                        <p class="profileTweet">{{item.full_text}}
+                                            <strong>[POSITIVE: {{item.score}}]</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %} 
+                    </div>
+                    <div class="categoryDiv categoryDiv__neutral">
+                        <h3 class="categoryTitle categoryTitle__neutral">Neutral</h3>
+                        {% if neutral %}
+                            {% for item in neutral %}
+                                <div class="tweetDiv">
+                                    <img class="profileImg" src="{{item.user.profile_image_url}}" />
+                                    <div class="nameDiv">
+                                        <h3 class="profileName">{{ item.user.name }}</h3>
+                                        <p class="profileHandle">@{{ item.user.screen_name}}</p>
+                                        <p class="profileTweet">{{item.full_text}}
+                                            <strong>[NEUTRAL: {{item.score}}]</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %} 
+                    </div>
+                    <div class="categoryDiv categoryDiv__negative">
+                        <h3 class="categoryTitle categoryTitle__negative">Negative</h3>
+                        {% if negative %}
+                            {% for item in negative %}
+                                <div class="tweetDiv">
+                                    <img class="profileImg" src="{{item.user.profile_image_url}}" />
+                                    <div class="nameDiv">
+                                        <h3 class="profileName">{{ item.user.name }}</h3>
+                                        <p class="profileHandle">@{{ item.user.screen_name}}</p>
+                                        <p class="profileTweet">{{item.full_text}}
+                                            <strong>[NEGATIVE: {{item.score}}]</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %} 
+                    </div>
+                    <div class="categoryDiv categoryDiv__removed">
+                        <h3 class="categoryTitle categoryTitle__removed">Removed</h3>
+                        {% if removed %}
+                            {% for item in removed %}
+                                <div class="tweetDiv">
+                                    <img class="profileImg" src="{{item.user.profile_image_url}}" />
+                                    <div class="nameDiv">
+                                        <h3 class="profileName">{{ item.user.name }}</h3>
+                                        <p class="profileHandle">@{{ item.user.screen_name}}</p>
+                                        <p class="profileTweet">{{item.full_text}}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %} 
+                    </div>
+                </div>
+                <div class="space"></div>  
+                {% endif %}     
+        </form>
+    </body>
+</html>
